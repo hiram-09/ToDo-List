@@ -1,0 +1,117 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../todo-items/todo-items.html">
+
+<dom-module id="todo-list">
+    <template>
+    <style>
+      :host {
+        display: block;
+        padding-top: 1em;
+      }
+      .Todo-list-imagenRemove{
+        float: right;
+        width: 5%;
+        cursor: pointer;
+        border-bottom-right-radius: 1em;
+      }
+      .Todo-list-header{
+        text-align: center;
+        background-color: #60dd45;
+        height: 35px;
+        padding-top: .5em;
+        padding-left: .5em;
+        border-top-left-radius: 1em;
+        border-top-right-radius: 1em;
+      }
+      .Todo-list{
+        text-align: center;
+        height: 3em;
+        padding-bottom: 1em;
+        padding-top: 1em;
+        border-bottom-right-radius: 10px;
+        border-bottom-left-radius: 10px;
+      }
+      .ColorFondo{
+        background-color: white;
+      }
+    </style>
+      <div class="Todo-list-header">
+        ToDo list by Iron Bit
+        <img on-click="eliminarTodo" src="bower_components/todo-list/images/recycle-bin.svg" class="Todo-list-imagenRemove" >
+      </div>
+      <div hidden="{{!muestraDivVacio}}" class="Todo-list ColorFondo">
+        <h3 id="msgTodo" class="Todolist-body">No hay ToDo's, tomate un café!!</h3>
+      </div>
+      <template is="dom-repeat" items="{{actividades}}">
+        <div class="ColorFondo">
+          <todo-items id="todoitems" index-item="{{index}}" label-item="{{item.actividad}}"></todo-items>
+        </div>
+      </template>
+
+    </template>
+
+    <script>
+        /**
+         * `todo-list`
+         * Lista de elementos todo-items
+         *
+         * @customElement
+         * @polymer
+         * @demo demo/index.html
+         */
+        class TodoList extends Polymer.Element {
+            static get is() {
+                return 'todo-list';
+            }
+            static get properties() {
+                return {
+                    actividades: {
+                        type: Array,
+                        value() {
+                            return []
+                        }
+                    },
+                    nuevaActividad: {
+                        type: String,
+                        notify: true
+                    },
+                    valor: {
+                        type: String,
+                        computed: 'agregarActividad(nuevaActividad)'
+                    },
+                    muestraDivVacio: Boolean
+                };
+            }
+            static get observers() {
+                return [
+                    'verificaArray(actividades.*)'
+                ]
+            }
+            agregarActividad(valor) {
+                if (valor !== '') {
+                    let algo = {
+                        actividad: valor
+                    };
+                    this.push('actividades', algo);
+                }
+                return valor;
+            }
+            ready() {
+                super.ready();
+                this.addEventListener('eliminar', (e) => {
+                    this.splice('actividades', e.detail.id, 1);
+                });
+            }
+            eliminarTodo() {
+                this.set('actividades', []);
+            }
+            verificaArray() {
+                this.muestraDivVacio = this.actividades.length > 0 ? this.muestraDivVacio = false : this.muestraDivVacio = true;
+            }
+
+        }
+
+        window.customElements.define(TodoList.is, TodoList);
+    </script>
+</dom-module>
